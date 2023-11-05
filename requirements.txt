@@ -1,0 +1,12 @@
+pyautogen
+pymemgpt==0.1.18-alpha.1
+openai
+InstructorEmbedding
+sentence_transformers
+pypdf
+docker
+pyautogen[retrievechat]
+pyautogen[teachable]
+ipywidgets
+bs4
+lxml
