@@ -161,3 +161,6 @@ cython_debug/
 
 /data
 /data_html
+/data_emb
+/vb_data_agent
+/coding
