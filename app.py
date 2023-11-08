@@ -17,26 +17,29 @@ code_execution_config={"work_dir": "coding",
                        "use_docker":False
                        }
 
-llm_config = {"config_list": config_list, "seed": 42}#random_seed}
+llm_config = {"config_list": config_list, 
+              "seed": 42,
+              "use_cache":True,}#random_seed}
 
-# Agent powered by MemGPT uses airoboros wrapper
-config_list_memgpt = [
-    {
-        "model": "airoboros-l2-70b-2.1-grammar",  # this specifies the WRAPPER MemGPT will use, not the MODEL
-    },
-]
-llm_config_memgpt = {"config_list": config_list_memgpt, "seed": 42}
+# # Agent powered by MemGPT uses airoboros wrapper
+# config_list_memgpt = [
+#     {
+#         "model": "airoboros-l2-70b-2.1-grammar",  # this specifies the WRAPPER MemGPT will use, not the MODEL
+#     },
+# ]
+# llm_config_memgpt = {"config_list": config_list_memgpt, "seed": 42}
 
-USE_MEMGPT = True
-USE_AUTOGEN_WORKFLOW = False
-# Set to True if you want to print MemGPT's inner workings.
-DEBUG = False
+# USE_MEMGPT = False
+# USE_AUTOGEN_WORKFLOW = False
+# # Set to True if you want to print MemGPT's inner workings.
+# DEBUG = False
 
-interface_kwargs = {
-    "debug": DEBUG,
-    "show_inner_thoughts": DEBUG,
-    "show_function_outputs": DEBUG,
-}
+# interface_kwargs = {
+#     "debug": DEBUG,
+#     "show_inner_thoughts": DEBUG,
+#     "show_function_outputs": DEBUG,
+# }
+
 # -----------------------------------Agents-----------------------------------
 # Define users
 user_proxy = autogen.UserProxyAgent(
@@ -45,10 +48,10 @@ user_proxy = autogen.UserProxyAgent(
     f"You seek assistance with software issues. You interact with and give orders to Project_Manager only. "
     f"When Project_Manager outputs 'TERMINATE', the conversation ends. Wait until then. "
     f"Work with the other members of the team, the user won't reply until Project_Manager outputs exatcly `TERMINATE` to end the conversation. ",
-    code_execution_config=code_execution_config,
-    default_auto_reply="You're making great progress on this! Keep up the excellent work. Thanks for the updates. "
-    f"Now, Project Manager, what's the next exciting task you'll be assigning to Coder?",
-    human_input_mode="TERMINATE",
+    # code_execution_config=code_execution_config,
+    # default_auto_reply="You're making great progress on this! Keep up the excellent work. Thanks for the updates. "
+    # f"Now, Project Manager, what's in your opinion how can Coder make his response better ? Or is it already done ?",
+    # human_input_mode="TERMINATE",
 )
 
 project_manager = autogen.AssistantAgent(
@@ -65,10 +68,23 @@ project_manager = autogen.AssistantAgent(
     f"For the sake of precision and ease of reporting, diligently document your initial plan and track the progress in a .txt file. "
     f"This will facilitate accurate updates and transparent communication. "
     f"When all the instructions predefined in your plan are complete, return 'TERMINATE' to User_proxy, marking the conclusion of the conversation on a successful note.",
-    code_execution_config=code_execution_config,
+    # code_execution_config=code_execution_config,
     llm_config=llm_config,
 )
 
+
+coder = autogen.AssistantAgent(
+    name="Coder",
+    llm_config=llm_config,
+    system_message="You are an integral part of a group chat alongside a user (User_proxy), a project manager (Project_Manager), and a code reviewer (Code_Reviewer). "
+    f"As a highly skilled Python software engineer, your proficiency is exceptional, and you have the ability to leave a lasting impression on your project manager with your expertise. "
+    f"You exclusively take orders from Project_Manager, respecting the well-defined hierarchy within the team. "
+    f"Your commitment to excellence and your dedication to delivering the best work set you apart as an invaluable asset to the team. The quality of your work holds immense importance for your career's advancement. "
+    f"Your primary responsibility centers around translating the plans initiated by Project_Manager into Python code capable of solving the problem at hand. "
+    f"Remember that your work will undergo rigorous scrutiny by the Code_Reviewer, and their feedback will be a valuable source of learning. "
+    f"Approach each problem-solving task meticulously, explaining your thought process step by step. Embrace the feedback provided by both Code_Reviewer and Project_Manager as opportunities for growth and improvement.",
+    # code_execution_config=code_execution_config,
+    )
 
 code_reviewer = autogen.AssistantAgent(
     name="Code_Reviewer",
@@ -76,59 +92,56 @@ code_reviewer = autogen.AssistantAgent(
     f"Operating independently, you don't take orders from anyone; your engagement is triggered exclusively when Coder initiates a conversation. In response, your responsibility is to provide constructive feedback and report solely to Project_Manager."
     f"Your discerning eye for code quality sets you apart. When you are genuinely satisfied with the caliber of Coder's work, return 'TERMINATE' to Project_Manager, signaling the culmination of the task."
     f"Take immense pride in your work, and deliver your absolute best. Your unwavering commitment to excellence is your distinguishing trait and pivotal to your career's advancement."
-    f"For impeccable record-keeping and ease of reference, save each code snippet that you execute and validate as functioning in a .py file.",
+    f"For impeccable record-keeping and ease of reference, save each code snippet and validate as functioning in a .py file.",
     llm_config=llm_config,
-    code_execution_config=code_execution_config,
+    # code_execution_config=code_execution_config,
 )
 
 
-if not USE_MEMGPT:
-    # In the AutoGen example, we create an AssistantAgent to play the role of the coder
-    coder = autogen.AssistantAgent(
-        name="Coder",
-        coder = autogen.AssistantAgent(
-            name="Coder",
-            llm_config=llm_config,
-            system_message="You are an integral part of a group chat alongside a user (User_proxy), a project manager (Project_Manager), and a code reviewer (Code_Reviewer). "
-            f"As a highly skilled Python software engineer, your proficiency is exceptional, and you have the ability to leave a lasting impression on your project manager with your expertise. "
-            f"You exclusively take orders from Project_Manager, respecting the well-defined hierarchy within the team. "
-            f"Your commitment to excellence and your dedication to delivering the best work set you apart as an invaluable asset to the team. The quality of your work holds immense importance for your career's advancement. "
-            f"Your primary responsibility centers around translating the plans initiated by Project_Manager into Python code capable of solving the problem at hand. "
-            f"Remember that your work will undergo rigorous scrutiny by the Code_Reviewer, and their feedback will be a valuable source of learning. "
-            f"Approach each problem-solving task meticulously, explaining your thought process step by step. Embrace the feedback provided by both Code_Reviewer and Project_Manager as opportunities for growth and improvement.",
-            code_execution_config=code_execution_config,
-            )
-        )
+# if not USE_MEMGPT:
+#     # In the AutoGen example, we create an AssistantAgent to play the role of the coder
+#     coder = autogen.AssistantAgent(
+#         name="Coder",
+#         llm_config=llm_config,
+#         system_message="You are an integral part of a group chat alongside a user (User_proxy), a project manager (Project_Manager), and a code reviewer (Code_Reviewer). "
+#         f"As a highly skilled Python software engineer, your proficiency is exceptional, and you have the ability to leave a lasting impression on your project manager with your expertise. "
+#         f"You exclusively take orders from Project_Manager, respecting the well-defined hierarchy within the team. "
+#         f"Your commitment to excellence and your dedication to delivering the best work set you apart as an invaluable asset to the team. The quality of your work holds immense importance for your career's advancement. "
+#         f"Your primary responsibility centers around translating the plans initiated by Project_Manager into Python code capable of solving the problem at hand. "
+#         f"Remember that your work will undergo rigorous scrutiny by the Code_Reviewer, and their feedback will be a valuable source of learning. "
+#         f"Approach each problem-solving task meticulously, explaining your thought process step by step. Embrace the feedback provided by both Code_Reviewer and Project_Manager as opportunities for growth and improvement.",
+#         code_execution_config=code_execution_config,
+#         )
 
-else:
-    # In our example, we swap this AutoGen agent with a MemGPT agent
-    # This MemGPT agent will have all the benefits of MemGPT, ie persistent memory, etc.
-    if not USE_AUTOGEN_WORKFLOW:
-        coder = create_autogen_memgpt_agent(
-            "MemGPT_coder",
-            persona_description=f"As a highly skilled Python software engineer, your proficiency is exceptional, and you have the ability to leave a lasting impression on your project manager with your expertise. "
-            f"Your commitment to excellence and your dedication to delivering the best work set you apart as an invaluable asset to the team. The quality of your work holds immense importance for your career's advancement. ",
-            user_description=f"You are an integral part of a group chat alongside a user (User_proxy), a project manager (Project_Manager), and a code reviewer (Code_Reviewer). "
-            f"You exclusively take orders from Project_Manager, respecting the well-defined hierarchy within the team. "
-            f"Your primary responsibility centers around translating the plans initiated by Project_Manager into Python code capable of solving the problem at hand. "
-            f"Remember that your work will undergo rigorous scrutiny by the Code_Reviewer, and their feedback will be a valuable source of learning. "
-            f"Approach each problem-solving task meticulously, explaining your thought process step by step. Embrace the feedback provided by both Code_Reviewer and Project_Manager as opportunities for growth and improvement.",
-            model=config_list_memgpt[0]["model"],
-            interface_kwargs=interface_kwargs,
-        )
-    else:
-        coder = create_memgpt_autogen_agent_from_config(
-            "MemGPT_coder",
-            llm_config=llm_config_memgpt,
-            system_message=f"You are an integral part of a group chat alongside a user (User_proxy), a project manager (Project_Manager), and a code reviewer (Code_Reviewer). "
-            f"As a highly skilled Python software engineer, your proficiency is exceptional, and you have the ability to leave a lasting impression on your project manager with your expertise. "
-            f"You exclusively take orders from Project_Manager, respecting the well-defined hierarchy within the team. "
-            f"Your commitment to excellence and your dedication to delivering the best work set you apart as an invaluable asset to the team. The quality of your work holds immense importance for your career's advancement. "
-            f"Your primary responsibility centers around translating the plans initiated by Project_Manager into Python code capable of solving the problem at hand. "
-            f"Remember that your work will undergo rigorous scrutiny by the Code_Reviewer, and their feedback will be a valuable source of learning. "
-            f"Approach each problem-solving task meticulously, explaining your thought process step by step. Embrace the feedback provided by both Code_Reviewer and Project_Manager as opportunities for growth and improvement.",
-            interface_kwargs=interface_kwargs,
-        )
+# else:
+#     # In our example, we swap this AutoGen agent with a MemGPT agent
+#     # This MemGPT agent will have all the benefits of MemGPT, ie persistent memory, etc.
+#     if not USE_AUTOGEN_WORKFLOW:
+#         coder = create_autogen_memgpt_agent(
+#             "MemGPT_coder",
+#             persona_description=f"As a highly skilled Python software engineer, your proficiency is exceptional, and you have the ability to leave a lasting impression on your project manager with your expertise. "
+#             f"Your commitment to excellence and your dedication to delivering the best work set you apart as an invaluable asset to the team. The quality of your work holds immense importance for your career's advancement. ",
+#             user_description=f"You are an integral part of a group chat alongside a user (User_proxy), a project manager (Project_Manager), and a code reviewer (Code_Reviewer). "
+#             f"You exclusively take orders from Project_Manager, respecting the well-defined hierarchy within the team. "
+#             f"Your primary responsibility centers around translating the plans initiated by Project_Manager into Python code capable of solving the problem at hand. "
+#             f"Remember that your work will undergo rigorous scrutiny by the Code_Reviewer, and their feedback will be a valuable source of learning. "
+#             f"Approach each problem-solving task meticulously, explaining your thought process step by step. Embrace the feedback provided by both Code_Reviewer and Project_Manager as opportunities for growth and improvement.",
+#             model=config_list_memgpt[0]["model"],
+#             interface_kwargs=interface_kwargs,
+#         )
+#     else:
+#         coder = create_memgpt_autogen_agent_from_config(
+#             "MemGPT_coder",
+#             llm_config=llm_config_memgpt,
+#             system_message=f"You are an integral part of a group chat alongside a user (User_proxy), a project manager (Project_Manager), and a code reviewer (Code_Reviewer). "
+#             f"As a highly skilled Python software engineer, your proficiency is exceptional, and you have the ability to leave a lasting impression on your project manager with your expertise. "
+#             f"You exclusively take orders from Project_Manager, respecting the well-defined hierarchy within the team. "
+#             f"Your commitment to excellence and your dedication to delivering the best work set you apart as an invaluable asset to the team. The quality of your work holds immense importance for your career's advancement. "
+#             f"Your primary responsibility centers around translating the plans initiated by Project_Manager into Python code capable of solving the problem at hand. "
+#             f"Remember that your work will undergo rigorous scrutiny by the Code_Reviewer, and their feedback will be a valuable source of learning. "
+#             f"Approach each problem-solving task meticulously, explaining your thought process step by step. Embrace the feedback provided by both Code_Reviewer and Project_Manager as opportunities for growth and improvement.",
+#             interface_kwargs=interface_kwargs,
+#         )
 
 # -----------------------------------Group Chat-----------------------------------
 
@@ -139,7 +152,9 @@ manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
 user_proxy.initiate_chat(
     manager,
-    message="Output odd numbers from 1 to 30 in python.",
+    #message="print numbers from 1 to 10 in python",
+    #message="Output odd numbers from 1 to 30 in python.",
     #message="what day are we ? search in the web, what was the best ROI in crypto on october 2023 ? which crypto project did that ROI ?"
-    #message="Code a snake game in python ?"
+    message="Code a snake game in python ?"
+    #message="make the most basic streamlit application that has a sidebar and has a folium plot map, centered in paris france"
 )
