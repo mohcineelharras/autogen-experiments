@@ -164,3 +164,4 @@ cython_debug/
 /data_emb
 /vb_data_agent
 /coding
+*.pdf

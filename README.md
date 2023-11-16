@@ -1,18 +1,5 @@
 # autogen-experiments
 
-https://mer.vin/2023/11/memgpt-autogen-open-source-llm/
-
-
-textgen or lm studio can be the reason of your bug
-textgen is better solution
-
-specify wrapper based on your model and dont let default one
-
-change necessary files to process the json and not throw and error
-
-
-Certainly, I've added the instructions for including screenshots and updated the README accordingly. Here's the revised README with the two modifications:
-
 ---
 
 # Software Development Simulation Project
@@ -74,11 +61,11 @@ Project_Manager -> User_proxy: Request 'TERMINATE'
 
 ![UML Diagram](ressources/uml_diagram_coding_team.png)
 
-*Caption: Screenshot of the UML diagram illustrating the personas' interactions.*
+*Screenshot of the UML diagram illustrating the personas' interactions.*
 
 ![Simulation in Progress](ressources/screenshot_example.png)
 
-*Caption: Screenshot of the simulation in progress, showcasing the collaboration among personas.*
+*Screenshot of the simulation in progress, showcasing the collaboration among personas.*
 
 ## Tools and Libraries
 
@@ -102,16 +89,5 @@ To interact with the UML diagram and explore the simulated software development 
 
 ## Contributors
 
-- [Your Name](https://github.com/yourusername) - Project Lead and Developer
+- [Mohcine EL HARRAS](https://github.com/mohcineelharras) - Project Lead and Developer
 
-## License
-
-This project is open-source and available under the [MIT License](LICENSE.md). Feel free to use, modify, and contribute to the project.
-
-## Acknowledgments
-
-We would like to express our gratitude to the creators of the Autogen library, Text-Generation-WebUI, and the Dolphin-2.2.1-Mistral model for making this project possible.
-
----
-
-Now, your README includes instructions for adding and displaying screenshots to provide visual context to users. You can replace the image
